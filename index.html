@@ -172,6 +172,78 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
   .vv-card{box-shadow:none;border:1px solid #ccc;margin-bottom:0;page-break-after:always;break-after:page}
   #main{width:100%!important}
 }
+
+/* ── VEILLE EMPLOI PANEL ── */
+#veille-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;opacity:0;transition:opacity .2s}
+#veille-overlay.open{display:block;opacity:1}
+#veille-panel{position:fixed;top:0;right:0;width:520px;max-width:95vw;height:100vh;background:#0c0e14;z-index:301;transform:translateX(100%);transition:transform .25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;overflow:hidden}
+#veille-panel.open{transform:translateX(0)}
+.vp-header{background:#141721;border-bottom:1px solid #1e2130;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.vp-title{font-size:15px;font-weight:700;color:#f97316;letter-spacing:-.3px}
+.vp-close{background:transparent;border:1px solid #2e3348;color:#6b7280;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.vp-close:hover{border-color:#f87171;color:#f87171}
+.vp-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px}
+.vp-section{background:#141721;border:1px solid #1e2130;border-radius:10px;padding:12px 14px}
+.vp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4b5563;margin-bottom:8px}
+.vp-pills{display:flex;flex-wrap:wrap;gap:6px}
+.vp-pill{padding:5px 11px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid #1e2130;background:#0c0e14;color:#6b7280;transition:all .15s;user-select:none}
+.vp-pill:hover{border-color:#f97316;color:#f97316}
+.vp-pill.active{background:#f97316;border-color:#f97316;color:#fff;font-weight:600}
+.vp-sources{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.vp-src{font-size:11px;font-weight:600;padding:3px 9px;border-radius:6px;border:1px solid}
+.vp-src-ce{background:#0f1f44;border-color:#1d4ed8;color:#93c5fd}
+.vp-src-wttj{background:#052e1a;border-color:#059669;color:#6ee7b7}
+.vp-src-apec{background:#1a1030;border-color:#7c3aed;color:#c4b5fd}
+.vp-src-li{background:#071c2e;border-color:#0077b5;color:#7dd3fc;text-decoration:none;cursor:pointer;transition:all .15s}
+.vp-src-li:hover{background:#0077b5;color:#fff}
+.vp-btn-refresh{background:#f97316;color:#fff;border:none;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;width:100%}
+.vp-btn-refresh:hover{background:#ea6c0b}
+.vp-btn-refresh:disabled{background:#2a2d3a;color:#4b5563;cursor:not-allowed}
+.vp-progress{height:2px;background:#1e2130;border-radius:2px;overflow:hidden;margin-top:6px}
+.vp-progress-fill{height:100%;background:#f97316;border-radius:2px;width:0%;transition:width .4s}
+.vp-results-hdr{display:flex;justify-content:space-between;align-items:center;font-size:11px}
+.vp-results-title{color:#6b7280}
+.vp-results-count{color:#f97316;font-weight:700}
+.vp-csv-btn{background:transparent;border:1px solid #2e3348;color:#9ca3af;padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s}
+.vp-csv-btn:hover{border-color:#10b981;color:#10b981}
+.vp-result-card{background:#0c0e14;border:1px solid #1e2130;border-radius:8px;padding:11px 13px;margin-bottom:7px;transition:border-color .15s;animation:vpFadeIn .2s ease both}
+.vp-result-card:hover{border-color:#2e3348}
+@keyframes vpFadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.vp-card-top{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px}
+.vp-badge{font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.vp-badge-cadremploi{background:#0f1f44;color:#93c5fd}
+.vp-badge-wttj{background:#052e1a;color:#6ee7b7}
+.vp-badge-apec{background:#1a1030;color:#c4b5fd}
+.vp-card-title{font-size:12px;font-weight:600;color:#e2e4ea;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.vp-card-company{font-size:11px;color:#f97316;font-weight:500;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vp-card-meta{font-size:10px;color:#4b5563}
+.vp-card-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.vp-action{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;text-decoration:none;transition:all .15s;white-space:nowrap}
+.vpa-voir{background:transparent;border-color:#2e3348;color:#9ca3af}
+.vpa-voir:hover{border-color:#f97316;color:#f97316}
+.vpa-li{background:#071c2e;border-color:#0077b5;color:#7dd3fc}
+.vpa-li:hover{background:#0077b5;color:#fff}
+.vpa-link{background:#1a2a0a;border-color:#4ade80;color:#4ade80}
+.vpa-link:hover{background:#4ade80;color:#0c0e14}
+.vp-link-panel{background:#141721;border:1px solid #2e3348;border-radius:8px;padding:10px 12px;margin-top:6px;display:none}
+.vp-link-panel.open{display:block}
+.vp-link-select{width:100%;background:#0c0e14;border:1px solid #2e3348;border-radius:6px;color:#e2e4ea;padding:7px 10px;font-size:12px;outline:none;margin-bottom:8px}
+.vp-link-select:focus{border-color:#f97316}
+.vp-link-actions{display:flex;gap:6px;flex-wrap:wrap}
+.vp-link-action{padding:5px 11px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;transition:all .15s}
+.vpla-prospect{background:#0f3a20;border-color:#4ade80;color:#4ade80}
+.vpla-prospect:hover{background:#4ade80;color:#0c0e14}
+.vpla-cockpit{background:#1a1a0f;border-color:#f59e0b;color:#f59e0b}
+.vpla-cockpit:hover{background:#f59e0b;color:#0c0e14}
+.vpla-match{background:#0f1f44;border-color:#93c5fd;color:#93c5fd}
+.vpla-match:hover{background:#93c5fd;color:#0c0e14}
+.vp-match-list{margin-top:6px;display:flex;flex-direction:column;gap:4px}
+.vp-match-item{display:flex;justify-content:space-between;align-items:center;padding:5px 9px;background:#0c0e14;border-radius:5px;font-size:11px;cursor:pointer;border:1px solid #1e2130}
+.vp-match-item:hover{border-color:#4ade80}
+.vp-match-name{color:#e2e4ea;font-weight:600}
+.vp-match-job{color:#6b7280}
+.vp-state{text-align:center;padding:30px 16px;color:#4b5563;font-size:13px;line-height:1.7}
+.vp-spinner{width:24px;height:24px;border:2px solid #1e2130;border-top-color:#f97316;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
 </style>
 </head>
 <body>
@@ -180,6 +252,7 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
     <div class="sidebar-header">
       <h1>🎯 ATAVA CRM</h1>
       <p id="sidebar-count">Candidats &amp; Prospects</p>
+      <button onclick="openVeille()" style="margin-top:8px;width:100%;background:#f97316;border:none;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">🔍 Veille Emploi</button>
     </div>
     <div class="search-box">
       <input type="text" id="search-input" placeholder="Rechercher un candidat..." oninput="filterCandidates()">
@@ -199,6 +272,48 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
 
 <div id="modal-container"></div>
 <div id="notif-container"></div>
+
+<div id="veille-overlay" onclick="closeVeille()"></div>
+<div id="veille-panel">
+  <div class="vp-header">
+    <div class="vp-title">🔍 Veille Emploi</div>
+    <button class="vp-close" onclick="closeVeille()">✕</button>
+  </div>
+  <div class="vp-body" id="vp-body">
+    <div class="vp-section">
+      <div class="vp-label">Profil candidat</div>
+      <div class="vp-pills" id="vp-profile-pills"></div>
+    </div>
+    <div class="vp-section">
+      <div class="vp-label">Région</div>
+      <div class="vp-pills" id="vp-region-pills"></div>
+    </div>
+    <div class="vp-section" style="padding-bottom:10px">
+      <div class="vp-sources" style="margin-bottom:10px">
+        <span class="vp-src vp-src-ce">Cadremploi</span>
+        <span class="vp-src vp-src-wttj">WTTJ</span>
+        <span class="vp-src vp-src-apec">APEC</span>
+        <a id="vp-li-link" href="#" target="_blank" class="vp-src vp-src-li">LinkedIn ↗</a>
+      </div>
+      <button class="vp-btn-refresh" id="vp-refresh-btn" onclick="vpFetchAll()">
+        <span id="vp-btn-icon">⟳</span> Actualiser les annonces
+      </button>
+      <div class="vp-progress"><div class="vp-progress-fill" id="vp-progress-fill"></div></div>
+    </div>
+    <div>
+      <div class="vp-results-hdr" style="margin-bottom:8px">
+        <span class="vp-results-title" id="vp-results-title">Sélectionnez et actualisez</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span class="vp-results-count" id="vp-results-count"></span>
+          <button class="vp-csv-btn" id="vp-csv-btn" onclick="vpExportCSV()" style="display:none">⬇ CSV</button>
+        </div>
+      </div>
+      <div id="vp-results-list">
+        <div class="vp-state">🎯 Sélectionnez un profil et une région<br>puis cliquez sur Actualiser</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 // ============================================================
@@ -6096,6 +6211,350 @@ function applyMessagesImport() {
   if(modal) modal.remove();
   notify('✅ ' + applied + ' prospect(s) mis à jour depuis messages.csv');
   renderAll();
+}
+
+// ============================================================
+// VEILLE EMPLOI — Panneau latéral intégré
+// ============================================================
+
+// Régions prédéfinies (fixes + zones candidates)
+var VP_REGIONS_BASE = {
+  pdl:          { label: 'Pays de la Loire',   city: 'Nantes',      radius: 80, apecZone: '65', li: 'Pays-de-la-Loire%2C+France' },
+  bretagne:     { label: 'Bretagne',            city: 'Rennes',      radius: 80, apecZone: '53', li: 'Bretagne%2C+France' },
+  idf:          { label: 'Île-de-France',       city: 'Paris',       radius: 30, apecZone: '1',  li: '%C3%8Ele-de-France%2C+France' },
+  zone_alsace:  { label: 'Alsace / Grand Est',  city: 'Strasbourg',  radius: 80, apecZone: '7',  li: 'Alsace%2C+France' },
+  zone_gironde: { label: 'Gironde / Bordeaux',  city: 'Bordeaux',    radius: 50, apecZone: '75', li: 'Nouvelle-Aquitaine%2C+France' },
+  zone_lyon:    { label: 'Lyon / Rhône-Alpes',  city: 'Lyon',        radius: 50, apecZone: '82', li: 'Auvergne-Rh%C3%B4ne-Alpes%2C+France' },
+  zone_sarthe:  { label: 'Sarthe / Le Mans',    city: 'Le Mans',     radius: 60, apecZone: '65', li: 'Sarthe%2C+France' }
+};
+
+// Profils génériques fixes
+var VP_PROFILES_BASE = {
+  commercial: { label: 'Dir. Commercial',    main: 'directeur commercial' },
+  finance:    { label: 'DAF / CFO',          main: 'directeur financier' },
+  operations: { label: 'COO / Opérations',   main: 'directeur operations' },
+  rh:         { label: 'DRH / RRH',          main: 'directeur ressources humaines' },
+  marketing:  { label: 'Dir. Marketing',     main: 'directeur marketing communication' },
+  supply:     { label: 'Dir. Supply Chain',  main: 'directeur supply chain logistique' },
+  resp_cial:  { label: 'Resp. Commercial',   main: 'responsable commercial' },
+  dg:         { label: 'Dir. Général PME',   main: 'directeur general PME' }
+};
+
+var VP = {
+  activeProfile: 'commercial',
+  activeRegion: 'pdl',
+  results: []
+};
+
+// Détecter la clé de région à partir d'une zone texte candidat
+function vpZoneToRegion(zone) {
+  var z = (zone||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  if (/pays de la loire|nantes|angers|saint.nazaire|\b44\b|\b49\b|\b85\b|\b53\b/.test(z)) return 'pdl';
+  if (/bretagne|rennes|brest|vannes|lorient|quimper|\b35\b|\b56\b|\b29\b|\b22\b/.test(z)) return 'bretagne';
+  if (/paris|ile.de.france|\b75\b|\b92\b|\b93\b|\b94\b|\b91\b|\b78\b|\b95\b/.test(z)) return 'idf';
+  if (/alsace|grand est|strasbourg|mulhouse|\b67\b|\b68\b/.test(z)) return 'zone_alsace';
+  if (/gironde|bordeaux|nouvelle.aquitaine|\b33\b/.test(z)) return 'zone_gironde';
+  if (/lyon|rhone|auvergne|\b69\b/.test(z)) return 'zone_lyon';
+  if (/sarthe|le mans|\b72\b/.test(z)) return 'zone_sarthe';
+  return 'pdl';
+}
+
+function vpBuildProfilesList() {
+  var list = [];
+  var bases = ['commercial','finance','operations','rh','marketing','supply','resp_cial','dg'];
+  bases.forEach(function(k) {
+    list.push({ key:k, label:VP_PROFILES_BASE[k].label, main:VP_PROFILES_BASE[k].main, fromCRM:false, regionKey:null });
+  });
+  state.candidates.filter(function(c){ return (c.priorite||99)<99 && c.metier; }).forEach(function(c){
+    list.push({ key:'crm_'+c.id, label:c.prenom+' '+c.nom,
+      main: c.metier.split('/')[0].split('\u2014')[0].split('(')[0].trim().toLowerCase(),
+      fromCRM:true, regionKey: vpZoneToRegion(c.zone) });
+  });
+  return list;
+}
+
+function vpBuildRegionsList() {
+  var used = {};
+  ['pdl','bretagne','idf'].forEach(function(k){ used[k]=true; });
+  state.candidates.filter(function(c){ return (c.priorite||99)<99 && c.zone; }).forEach(function(c){
+    var k = vpZoneToRegion(c.zone);
+    if (VP_REGIONS_BASE[k]) used[k] = true;
+  });
+  return Object.keys(used).map(function(k){ return Object.assign({key:k}, VP_REGIONS_BASE[k]); });
+}
+
+function vpCurrentProfile() {
+  var list = vpBuildProfilesList();
+  for (var i=0;i<list.length;i++){ if(list[i].key===VP.activeProfile) return list[i]; }
+  return list[0];
+}
+function vpCurrentRegion() {
+  return Object.assign({key:VP.activeRegion}, VP_REGIONS_BASE[VP.activeRegion]||VP_REGIONS_BASE.pdl);
+}
+
+function openVeille() {
+  document.getElementById('veille-overlay').classList.add('open');
+  document.getElementById('veille-panel').classList.add('open');
+  vpBuildPills();
+}
+function closeVeille() {
+  document.getElementById('veille-overlay').classList.remove('open');
+  document.getElementById('veille-panel').classList.remove('open');
+}
+
+/* ---- VEILLE : état ---- */
+VP.activeRegions = ['pdl','bretagne'];  // multi-sélection
+
+function vpBuildPills() {
+  /* Profils */
+  var profiles = vpBuildProfilesList();
+  var pp = document.getElementById('vp-profile-pills');
+  pp.innerHTML = '';
+  var sepAdded = false;
+  profiles.forEach(function(prof) {
+    if (prof.fromCRM && !sepAdded) {
+      var sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#4b5563;padding:6px 2px 2px;font-weight:700';
+      sep.textContent = '\u2500\u2500 Vivier Atava';
+      pp.appendChild(sep);
+      sepAdded = true;
+    }
+    var p = document.createElement('div');
+    p.className = 'vp-pill'+(prof.key===VP.activeProfile?' active':'');
+    p.textContent = prof.label;
+    p.onclick = (function(pr){ return function(){
+      VP.activeProfile = pr.key;
+      if (pr.fromCRM && pr.regionKey) {
+        // Auto-sélectionner la zone du candidat (remplace la sélection courante)
+        VP.activeRegions = [pr.regionKey];
+        // Si le candidat couvre plusieurs zones (ex Laurent: PDL+Bretagne), on peut en ajouter
+        var c = state.candidates.filter(function(x){ return 'crm_'+x.id===pr.key; })[0];
+        if (c && c.zone) {
+          var z = c.zone.toLowerCase();
+          var extra = [];
+          if (/nantes|44|49|85|53|loire/.test(z)) extra.push('pdl');
+          if (/bretagne|35|56|29|22|rennes|brest|vannes/.test(z)) extra.push('bretagne');
+          if (/paris|idf|75|92|93|94/.test(z)) extra.push('idf');
+          if (/alsace|67|68|strasbourg/.test(z)) extra.push('zone_alsace');
+          if (/gironde|33|bordeaux/.test(z)) extra.push('zone_gironde');
+          if (/lyon|69/.test(z)) extra.push('zone_lyon');
+          if (/sarthe|72|le mans/.test(z)) extra.push('zone_sarthe');
+          if (extra.length > 0) VP.activeRegions = extra.filter(function(v,i,a){ return a.indexOf(v)===i; });
+        }
+      }
+      vpBuildPills();
+    }; })(prof);
+    pp.appendChild(p);
+  });
+
+  /* Régions — multi-sélection (toggle) */
+  var regions = vpBuildRegionsList();
+  var rp = document.getElementById('vp-region-pills');
+  rp.innerHTML = '';
+  regions.forEach(function(reg) {
+    var active = VP.activeRegions.indexOf(reg.key) !== -1;
+    var p = document.createElement('div');
+    p.className = 'vp-pill'+(active?' active':'');
+    p.textContent = reg.label;
+    p.title = 'Cliquez pour sélectionner/désélectionner';
+    p.onclick = (function(rk){ return function(){
+      var idx = VP.activeRegions.indexOf(rk);
+      if (idx === -1) { VP.activeRegions.push(rk); }
+      else if (VP.activeRegions.length > 1) { VP.activeRegions.splice(idx,1); }
+      // Si plus aucune région, garder au moins celle-ci
+      if (VP.activeRegions.length === 0) VP.activeRegions = [rk];
+      vpBuildPills();
+    }; })(reg.key);
+    rp.appendChild(p);
+  });
+
+  /* Mettre à jour les liens de recherche directe */
+  vpUpdateSearchLinks();
+}
+
+function vpCurrentProfile() {
+  var list = vpBuildProfilesList();
+  for (var i=0;i<list.length;i++){ if(list[i].key===VP.activeProfile) return list[i]; }
+  return list[0];
+}
+
+function vpUpdateSearchLinks() {
+  var prof = vpCurrentProfile();
+  var kw   = prof.main;
+  var regs = VP.activeRegions.map(function(k){ return VP_REGIONS_BASE[k]||null; }).filter(Boolean);
+
+  /* LinkedIn : première région sélectionnée */
+  var liReg = regs[0] || VP_REGIONS_BASE.pdl;
+  var liHref = 'https://www.linkedin.com/jobs/search/?keywords='+encodeURIComponent(kw)+'&location='+liReg.li+'&f_TPR=r604800&f_E=4%2C5';
+  var liEl = document.getElementById('vp-li-link');
+  if (liEl) {
+    liEl.href = liHref;
+    liEl.onclick = function(e){ e.preventDefault(); window.open(liHref,'_blank'); };
+  }
+
+  /* Zone de résultats : liens directs par source × région */
+  var list = document.getElementById('vp-results-list');
+  if (!list) return;
+
+  var cards = regs.map(function(reg){
+    var ceUrl   = 'https://www.cadremploi.fr/emploi?motsCles='+encodeURIComponent(kw)+'&lieuPrincipal='+encodeURIComponent(reg.city)+'&rayon='+(reg.radius||60);
+    var wttjUrl = 'https://www.welcometothejungle.com/fr/jobs?query='+encodeURIComponent(kw)+'&aroundQuery='+encodeURIComponent(reg.city+', France');
+    var apecUrl = reg.apecZone ? 'https://www.apec.fr/candidat/recherche-emploi.html/emploi?motsCles='+encodeURIComponent(kw)+'&zone='+reg.apecZone+'&distance=50' : null;
+    var indeedUrl = 'https://fr.indeed.com/jobs?q='+encodeURIComponent(kw)+'&l='+encodeURIComponent(reg.city)+'&radius='+(reg.radius||60)+'&jt=fulltime';
+    var liRegUrl = 'https://www.linkedin.com/jobs/search/?keywords='+encodeURIComponent(kw)+'&location='+reg.li+'&f_TPR=r2592000&f_E=4%2C5';
+
+    function lnk(url, bg, border, color, label) {
+      return '<a href="'+url+'" target="_blank" rel="noopener noreferrer" style="padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;background:'+bg+';border:1px solid '+border+';color:'+color+';text-decoration:none;display:inline-block">'+label+' ↗</a>';
+    }
+
+    return '<div style="background:#141721;border:1px solid #1e2130;border-radius:8px;padding:12px 14px;margin-bottom:8px">'
+      +'<div style="font-size:11px;font-weight:700;color:#f97316;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">'+reg.label+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px">'
+        +lnk(ceUrl,    '#0f1f44','#1d4ed8','#93c5fd','Cadremploi')
+        +lnk(wttjUrl,  '#052e1a','#059669','#6ee7b7','WTTJ')
+        +(apecUrl ? lnk(apecUrl,'#1a1030','#7c3aed','#c4b5fd','APEC') : '')
+        +lnk(indeedUrl,'#1a1000','#d97706','#fcd34d','Indeed')
+        +lnk(liRegUrl, '#071c2e','#0077b5','#7dd3fc','LinkedIn Jobs')
+      +'</div>'
+    +'</div>';
+  }).join('');
+
+  var hint = '<div style="font-size:11px;color:#4b5563;margin-top:4px;text-align:center">Cliquez sur un lien pour rechercher directement sur le site</div>';
+  list.innerHTML = '<div style="padding-top:4px">'+cards+hint+'</div>';
+  document.getElementById('vp-results-count').textContent = '';
+  document.getElementById('vp-csv-btn').style.display = 'none';
+  document.getElementById('vp-results-title').textContent = prof.label+' \u2014 '+(regs.map(function(r){return r.label;}).join(', '));
+}
+
+function vpOpen(url) {
+  window.open(url, '_blank');
+  return false;
+}
+
+/* vpFetchAll devient un alias vers vpUpdateSearchLinks pour compatibilité du bouton */
+function vpFetchAll() {
+  vpUpdateSearchLinks();
+  vpSetProgress(100);
+  setTimeout(function(){ vpSetProgress(0); }, 800);
+}
+
+function vpSetProgress(p){ document.getElementById('vp-progress-fill').style.width=p+'%'; }
+
+function vpMatchCandidates(companyName, profileKey) {
+  var prof = vpCurrentProfile();
+  var kw = (prof.main||'directeur').toLowerCase();
+  var matched = [];
+  state.candidates.forEach(function(c) {
+    if(c.priorite >= 99) return;
+    var metier = (c.metier||'').toLowerCase();
+    if(kw.split(' ').some(function(w){return w.length>4 && metier.includes(w);})) matched.push(c);
+  });
+  return matched;
+}
+
+function vpRenderResults(regionLabel) {
+  vpUpdateSearchLinks();
+}
+
+function vpEsc(s){ return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function vpToggleLinkPanel(idx) {
+  var panel = document.getElementById('vp-link-'+idx);
+  if (panel) panel.classList.toggle('open');
+}
+
+function vpFmtDate(ds){
+  if(!ds) return '';
+  try{ var d=new Date(ds),diff=Math.floor((new Date()-d)/86400000);
+    if(isNaN(diff)||diff<0) return '';
+    if(diff===0) return 'Auj.'; if(diff===1) return 'Hier'; if(diff<7) return 'J-'+diff;
+    return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  }catch(e){return '';}
+}
+
+function vpAddAsProspect(idx) {
+  var result = VP.results && VP.results[idx];
+  if (!result) return;
+  var selEl = document.getElementById('vp-cand-sel-'+idx);
+  var cid = selEl ? selEl.value : '';
+  if(!cid) { alert('Sélectionnez un candidat.'); return; }
+  var c = getCandidate(cid);
+  if(!c) return;
+  var maxId = c.prospects.reduce(function(m,p){return Math.max(m,p.id||0);},0);
+  c.prospects.push({
+    id: maxId+1, prenom: '—', nom: result.company||'Société',
+    poste: (result.title||'').substring(0,60), entreprise: result.company||'—',
+    localisation: VP.activeRegions.map(function(k){ return (VP_REGIONS_BASE[k]||{}).label||k; }).join(', '),
+    dateContact: new Date().toLocaleDateString('fr-FR'),
+    statut: 'A contacter',
+    note: 'Veille emploi | '+(result.source||'').toUpperCase()+(result.link?' | '+result.link:'')
+  });
+  updateCandidate(c);
+  notify('Annonce ajoutee dans la fiche de '+c.prenom+' '+c.nom);
+  var panel = document.getElementById('vp-link-'+idx);
+  if (panel) panel.classList.remove('open');
+}
+
+function vpSendToCockpit(idx) {
+  var result = VP.results && VP.results[idx];
+  if (!result) return;
+  var selEl = document.getElementById('vp-cand-sel-'+idx);
+  var cid = selEl ? selEl.value : '';
+  if(!cid) { alert('Selectionnez un candidat.'); return; }
+  var c = getCandidate(cid);
+  if(!c) return;
+  var note = '['+new Date().toLocaleDateString('fr-FR')+'] SIGNAL — '+(result.title||'')+' chez '+(result.company||'')+(result.link?' | '+result.link:'');
+  c.notes = (c.notes||'')+'\n'+note;
+  updateCandidate(c);
+  notify('Signal ajoute dans les notes de '+c.prenom+' '+c.nom);
+  var panel = document.getElementById('vp-link-'+idx);
+  if (panel) panel.classList.remove('open');
+}
+
+function vpShowMatch(idx) {
+  var listEl = document.getElementById('vp-match-list-'+idx);
+  if (!listEl) return;
+  var matches = vpMatchCandidates('', VP.activeProfile);
+  if(!matches.length) {
+    listEl.innerHTML = '<div style="font-size:11px;color:#4b5563;padding:4px 0">Aucun candidat correspondant.</div>';
+    return;
+  }
+  listEl.innerHTML = matches.map(function(c) {
+    return '<div class="vp-match-item" onclick="vpQuickLink('+idx+',\''+c.id+'\')">'
+      +'<span class="vp-match-name">'+c.prenom+' '+c.nom+'</span>'
+      +'<span class="vp-match-job">'+c.metier.substring(0,30)+'</span>'
+    +'</div>';
+  }).join('');
+}
+
+function vpQuickLink(idx, cid) {
+  var selEl = document.getElementById('vp-cand-sel-'+idx);
+  if(selEl) selEl.value = cid;
+}
+
+
+function vpExportCSV() {
+  if(!VP.results.length) return;
+  var header = ['Source','Titre','Entreprise','Région','Date','Lien'];
+  var rows = VP.results.map(function(r) {
+    return [
+      r.source,
+      '"'+r.title.replace(/"/g,'""')+'"',
+      '"'+(r.company||'').replace(/"/g,'""')+'"',
+      regionLabel,
+      r.date ? new Date(r.date).toLocaleDateString('fr-FR') : '',
+      r.link
+    ].join(',');
+  });
+  var csv = header.join(',') + '\n' + rows.join('\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'veille_atava_'+VP.activeProfile+'_'+VP.activeRegion+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  notify('✅ CSV exporté');
 }
 
 </script>
