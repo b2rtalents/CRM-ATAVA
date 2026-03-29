@@ -244,6 +244,26 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
 .vp-match-job{color:#6b7280}
 .vp-state{text-align:center;padding:30px 16px;color:#4b5563;font-size:13px;line-height:1.7}
 .vp-spinner{width:24px;height:24px;border:2px solid #1e2130;border-top-color:#f97316;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+
+/* === NOUVELLES FONCTIONNALITÉS V2 === */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal-box{background:#fff;border-radius:16px;padding:28px;width:620px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-box h2{font-size:16px;font-weight:700;color:#0f172a;margin-bottom:4px}
+.modal-box p{font-size:12px;color:#64748b;margin-bottom:16px}
+.cv-textarea{width:100%;min-height:200px;padding:12px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;font-family:inherit;resize:vertical;outline:none}
+.cv-textarea:focus{border-color:#3b82f6}
+.ai-result-box{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:14px;margin-top:12px;font-size:12px;line-height:1.7}
+.ai-result-box h4{font-size:13px;font-weight:700;color:#065f46;margin-bottom:8px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.waalaxy-btn{background:#8b5cf6;color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.waalaxy-btn:hover{background:#7c3aed}
+.cal-btn{background:#f0fdf4;color:#065f46;border:1px solid #bbf7d0;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap}
+.cal-btn:hover{background:#dcfce7}
+.li-search-btn{background:#0077b5;color:#fff;border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.li-search-btn:hover{background:#005885}
+.import-btn{background:#10b981;border:none;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center;width:100%;margin-top:6px}
+.import-btn:hover{background:#059669}
 </style>
 </head>
 <body>
@@ -253,6 +273,7 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
       <h1>🎯 ATAVA CRM</h1>
       <p id="sidebar-count">Candidats &amp; Prospects</p>
       <button onclick="openVeille()" style="margin-top:8px;width:100%;background:#f97316;border:none;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">🔍 Veille Emploi</button>
+      <button onclick="openImportCV()" class="import-btn">📥 Importer un CV</button>
     </div>
     <div class="search-box">
       <input type="text" id="search-input" placeholder="Rechercher un candidat..." oninput="filterCandidates()">
@@ -4674,6 +4695,8 @@ function renderMain() {
         <button class="btn btn-violet btn-sm" onclick="showAddProspect('${c.id}')">+ Prospect</button>
         <button class="btn btn-sm" style="background:#1a4a6e;color:#60a5fa;border:1px solid #475569" onclick="showMatchingModal('${c.id}')">🔄 Matching</button>
         <button class="btn btn-gray btn-sm" onclick="showEditCandidate('${c.id}')">✏️ Modifier</button>
+        <button class="waalaxy-btn" onclick="exportWaalaxyCSV('${c.id}')">⚡ Export Waalaxy</button>
+        <button class="li-search-btn" onclick="showLinkedInSearches('${c.id}')">🔍 Recherches LinkedIn</button>
       </div>
     </div>
     <div class="stats-bar">
@@ -4725,6 +4748,8 @@ function renderProspects(c) {
         <td style="color:#64748b;font-size:11px;max-width:180px">${p.note||""}</td>
         <td>
           <div class="action-icons">
+            ${p.linkedinUrl?`<a href="${p.linkedinUrl}" target="_blank" class="icon-btn" title="LinkedIn">🔗</a>`:''}
+            <button class="cal-btn" title="Poser un rappel dans l'agenda" onclick="createCalendarLink('${c.id}',${p.id})">📅</button>
             <button class="icon-btn" title="Modifier" onclick="showEditProspect('${c.id}',${p.id})">✏️</button>
             <button class="icon-btn del" title="Supprimer" onclick="deleteProspect('${c.id}',${p.id})">🗑️</button>
           </div>
@@ -4740,7 +4765,8 @@ function renderRequetes(c) {
   return reqs.map(function(r) {
     var safeQuery = r.query.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     var rawQuery = r.query;
-    return '<div class="msg-card"><div class="msg-card-header"><span class="msg-card-title">&#x1F50E; ' + r.label + '</span><button class="btn btn-gray btn-sm" onclick="navigator.clipboard.writeText(\'' + rawQuery.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\').then(function(){notify(\'&#x2713; Copi&eacute;\')})">&#x1F4CB; Copier</button></div><div class="msg-text" style="font-family:monospace;font-size:12px;background:#f0f9ff;border-color:#bae6fd;color:#0c4a6e">' + safeQuery + '</div></div>';
+    var liUrl = 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent(rawQuery);
+    return '<div class="msg-card"><div class="msg-card-header"><span class="msg-card-title">&#x1F50E; ' + r.label + '</span><div style="display:flex;gap:6px"><a href="'+liUrl+'" target="_blank" class="li-search-btn">🔗 Ouvrir LinkedIn</a><button class="btn btn-gray btn-sm" onclick="navigator.clipboard.writeText(\'' + rawQuery.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\').then(function(){notify(\'&#x2713; Copi&eacute;\')})">&#x1F4CB; Copier</button></div></div><div class="msg-text" style="font-family:monospace;font-size:12px;background:#f0f9ff;border-color:#bae6fd;color:#0c4a6e">' + safeQuery + '</div></div>';
   }).join('');
 }
 
@@ -6284,6 +6310,402 @@ function vpExportCSV() {
   a.click();
   URL.revokeObjectURL(url);
   notify('✅ CSV exporté');
+}
+
+// ============================================================
+// NOUVELLES FONCTIONNALITÉS V2
+// ============================================================
+
+// ---- IMPORT CV avec Claude API ----
+function openImportCV() {
+  var savedKey = localStorage.getItem('atava_api_key') || '';
+  var modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'cv-modal';
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h2>📥 Importer un CV</h2>
+      <p>Déposez un fichier PDF ou Word, ou collez directement le texte du candidat.</p>
+
+      ${!savedKey ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:12px">
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px">🔑 Clé API Anthropic requise (une seule fois)</div>
+        <div style="font-size:11px;color:#78350f;margin-bottom:8px">Récupérez-la sur <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#d97706">console.anthropic.com</a> — elle sera sauvegardée localement sur votre appareil uniquement.</div>
+        <input type="password" id="api-key-input" placeholder="sk-ant-..." style="width:100%;padding:8px 10px;border:1px solid #fde68a;border-radius:6px;font-size:12px;font-family:monospace">
+        <button onclick="saveApiKey()" class="btn btn-blue btn-sm" style="margin-top:6px">💾 Sauvegarder la clé</button>
+      </div>` : `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#065f46;display:flex;justify-content:space-between;align-items:center">
+        <span>✅ Clé API configurée</span>
+        <button onclick="localStorage.removeItem('atava_api_key');document.getElementById('cv-modal').remove();openImportCV();" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer">Changer</button>
+      </div>`}
+
+      <div id="cv-dropzone" style="border:2px dashed #cbd5e1;border-radius:10px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;background:#f8fafc;transition:background .2s"
+        ondragover="event.preventDefault();this.style.background='#eff6ff';this.style.borderColor='#3b82f6'"
+        ondragleave="this.style.background='#f8fafc';this.style.borderColor='#cbd5e1'"
+        ondrop="handleCVDrop(event)"
+        onclick="document.getElementById('cv-file-input').click()">
+        <div style="font-size:28px;margin-bottom:6px">📄</div>
+        <div style="font-size:13px;font-weight:600;color:#334155">Cliquez ou glissez un fichier ici</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:4px">PDF, Word (.docx), ou fichier texte</div>
+        <input type="file" id="cv-file-input" accept=".pdf,.doc,.docx,.txt" style="display:none" onchange="handleCVFile(this.files[0])">
+      </div>
+
+      <div style="text-align:center;font-size:11px;color:#94a3b8;margin:8px 0">— ou collez le texte directement —</div>
+
+      <textarea class="cv-textarea" id="cv-text" placeholder="Collez ici le CV complet, le texte LinkedIn, ou l'email du candidat..." style="min-height:120px"></textarea>
+
+      <div id="cv-file-status" style="font-size:12px;color:#10b981;margin-top:6px;display:none"></div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-blue" onclick="extractCVWithAI()">🤖 Analyser avec IA</button>
+        <button class="btn btn-gray" onclick="document.getElementById('cv-modal').remove()">Annuler</button>
+      </div>
+      <div id="cv-result"></div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function saveApiKey() {
+  var key = document.getElementById('api-key-input').value.trim();
+  if(!key.startsWith('sk-ant-')) { notify('⚠️ Clé invalide — doit commencer par sk-ant-'); return; }
+  localStorage.setItem('atava_api_key', key);
+  document.getElementById('cv-modal').remove();
+  openImportCV();
+  notify('✅ Clé API sauvegardée');
+}
+
+function handleCVDrop(event) {
+  event.preventDefault();
+  document.getElementById('cv-dropzone').style.background = '#f8fafc';
+  document.getElementById('cv-dropzone').style.borderColor = '#cbd5e1';
+  var file = event.dataTransfer.files[0];
+  if(file) handleCVFile(file);
+}
+
+async function handleCVFile(file) {
+  if(!file) return;
+  var statusEl = document.getElementById('cv-file-status');
+  var textarea = document.getElementById('cv-text');
+  statusEl.style.display = 'block';
+  statusEl.style.color = '#3b82f6';
+  statusEl.textContent = '⏳ Lecture du fichier ' + file.name + '...';
+
+  var ext = file.name.split('.').pop().toLowerCase();
+
+  if(ext === 'txt') {
+    var text = await file.text();
+    textarea.value = text;
+    statusEl.style.color = '#10b981';
+    statusEl.textContent = '✅ Fichier texte chargé — ' + file.name;
+    return;
+  }
+
+  if(ext === 'pdf') {
+    try {
+      // Utilise PDF.js via CDN
+      if(!window.pdfjsLib) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+      var arrayBuffer = await file.arrayBuffer();
+      var pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
+      var texts = [];
+      for(var i = 1; i <= pdf.numPages; i++) {
+        var page = await pdf.getPage(i);
+        var content = await page.getTextContent();
+        texts.push(content.items.map(s => s.str).join(' '));
+      }
+      textarea.value = texts.join('\n\n');
+      statusEl.style.color = '#10b981';
+      statusEl.textContent = '✅ PDF lu — ' + pdf.numPages + ' page(s) — ' + file.name;
+    } catch(e) {
+      statusEl.style.color = '#ef4444';
+      statusEl.textContent = '❌ Erreur PDF : ' + e.message + ' — Collez le texte manuellement.';
+    }
+    return;
+  }
+
+  if(ext === 'docx' || ext === 'doc') {
+    try {
+      if(!window.mammoth) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js');
+      }
+      var arrayBuffer = await file.arrayBuffer();
+      var result = await mammoth.extractRawText({arrayBuffer: arrayBuffer});
+      textarea.value = result.value;
+      statusEl.style.color = '#10b981';
+      statusEl.textContent = '✅ Word lu — ' + file.name;
+    } catch(e) {
+      statusEl.style.color = '#ef4444';
+      statusEl.textContent = '❌ Erreur Word : ' + e.message + ' — Collez le texte manuellement.';
+    }
+    return;
+  }
+
+  statusEl.style.color = '#f59e0b';
+  statusEl.textContent = '⚠️ Format non supporté. Utilisez PDF, Word ou texte.';
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    var s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function extractCVWithAI() {
+  var text = document.getElementById('cv-text').value.trim();
+  if(!text) { notify('⚠️ Collez un CV ou chargez un fichier'); return; }
+
+  var apiKey = localStorage.getItem('atava_api_key');
+  if(!apiKey) { notify('⚠️ Configurez votre clé API Anthropic d\'abord'); return; }
+
+  var resultEl = document.getElementById('cv-result');
+  resultEl.innerHTML = '<div style="margin-top:14px;color:#3b82f6"><span class="spinner"></span> Analyse en cours...</div>';
+
+  var prompt = `Tu es un assistant recruteur expert. Analyse ce CV/texte et extrais un profil candidat complet en JSON STRICT (sans markdown, sans backticks).
+
+Format EXACT à retourner :
+{
+  "prenom": "...",
+  "nom": "...",
+  "metier": "Titre de poste court (ex: Directeur Commercial B2B)",
+  "secteur": "Secteur(s) d'activite",
+  "zone": "Zone geographique souhaitee",
+  "tel": "telephone ou -",
+  "email": "email ou -",
+  "statut": "Actif - En recherche",
+  "notes": "Resume 2-3 lignes : anciennete, competences cles, atout principal",
+  "mobilite": "Ex: Grand Ouest - CDI uniquement",
+  "onePagerAnon": "Pitch anonyme 2-3 phrases percutantes pour DG/DRH",
+  "tagsAnon": "Tag1, Tag2, Tag3, Tag4, Tag5",
+  "messages": {
+    "Post-connexion": "Message LinkedIn post-connexion (3-4 lignes max, vouvoiement, centre sur le candidat)",
+    "Relance J+7": "Message de relance (2-3 lignes max, vouvoiement)"
+  },
+  "requetes": [
+    {"label": "Requete 1 courte", "query": "mots-cles LinkedIn recherche"},
+    {"label": "Requete 2 courte", "query": "mots-cles LinkedIn recherche"}
+  ]
+}
+
+Vouvoiement dans tous les messages. Pas de signature dans les messages. Retourne UNIQUEMENT le JSON, rien d'autre.
+
+CV a analyser :
+${text.substring(0, 3000)}`;
+
+  try {
+    var timeoutPromise = new Promise(function(_,reject){
+      setTimeout(function(){ reject(new Error('TIMEOUT')); }, 30000);
+    });
+
+    var fetchPromise = fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{role: 'user', content: prompt}]
+      })
+    });
+
+    var resp = await Promise.race([fetchPromise, timeoutPromise]);
+
+    if(!resp.ok) {
+      var errData = await resp.json().catch(function(){return {};});
+      throw new Error('API ' + resp.status + ' : ' + ((errData.error && errData.error.message) || resp.statusText));
+    }
+
+    var data = await resp.json();
+    var raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    if(!raw) throw new Error('Réponse vide de l\'API');
+
+    var jsonStr = raw.replace(/```json|```/g, '').trim();
+    var jsonStart = jsonStr.indexOf('{');
+    var jsonEnd = jsonStr.lastIndexOf('}');
+    if(jsonStart >= 0 && jsonEnd >= 0) jsonStr = jsonStr.slice(jsonStart, jsonEnd+1);
+
+    var profile = JSON.parse(jsonStr);
+    showCVResult(profile);
+
+  } catch(e) {
+    var msg = e.message === 'TIMEOUT'
+      ? '⏱️ Délai dépassé (30s). Essayez de coller seulement les 2 premières pages du CV.'
+      : '❌ Erreur : ' + e.message;
+    resultEl.innerHTML = '<div style="margin-top:14px;padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#991b1b">'+msg+'<br><br><b>Solution :</b> Copiez-collez le texte du CV manuellement dans la zone de texte, puis cliquez Analyser.</div>';
+  }
+}
+
+function showCVResult(p) {
+  var resultEl = document.getElementById('cv-result');
+  resultEl.innerHTML = `
+    <div class="ai-result-box">
+      <h4>✅ Profil extrait — vérifiez et confirmez</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div><b>Prénom :</b> <input id="r-prenom" value="${p.prenom||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Nom :</b> <input id="r-nom" value="${p.nom||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Métier :</b> <input id="r-metier" value="${p.metier||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Secteur :</b> <input id="r-secteur" value="${p.secteur||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Zone :</b> <input id="r-zone" value="${p.zone||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Email :</b> <input id="r-email" value="${p.email||'—'}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Tél :</b> <input id="r-tel" value="${p.tel||'—'}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+        <div><b>Mobilité :</b> <input id="r-mobilite" value="${p.mobilite||''}" style="width:100%;padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px"></div>
+      </div>
+      <div style="margin-bottom:8px"><b>Notes :</b><textarea id="r-notes" style="width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;resize:vertical;min-height:60px">${p.notes||''}</textarea></div>
+      <div style="margin-bottom:8px"><b>One-pager anonyme :</b><textarea id="r-onepager" style="width:100%;padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;font-size:12px;resize:vertical;min-height:60px">${p.onePagerAnon||''}</textarea></div>
+      <div id="r-profile-data" style="display:none">${JSON.stringify(p)}</div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button class="btn btn-green" onclick="saveCVProfile()">💾 Ajouter au CRM</button>
+        <button class="btn btn-gray" onclick="document.getElementById('cv-modal').remove()">Annuler</button>
+      </div>
+    </div>`;
+}
+
+function saveCVProfile() {
+  var rawP = document.getElementById('r-profile-data').textContent;
+  var p = JSON.parse(rawP);
+  p.prenom = document.getElementById('r-prenom').value.trim();
+  p.nom = document.getElementById('r-nom').value.trim();
+  p.metier = document.getElementById('r-metier').value.trim();
+  p.secteur = document.getElementById('r-secteur').value.trim();
+  p.zone = document.getElementById('r-zone').value.trim();
+  p.email = document.getElementById('r-email').value.trim();
+  p.tel = document.getElementById('r-tel').value.trim();
+  p.mobilite = document.getElementById('r-mobilite').value.trim();
+  p.notes = document.getElementById('r-notes').value.trim();
+  p.onePagerAnon = document.getElementById('r-onepager').value.trim();
+
+  // Ajouter signature aux messages
+  Object.keys(p.messages||{}).forEach(k => {
+    if(!p.messages[k].includes('brrodriguez@atava.fr')) {
+      p.messages[k] += SIG;
+    }
+  });
+
+  var newCandidat = {
+    id: 'cand_' + Date.now(),
+    nom: p.nom.toUpperCase(),
+    prenom: p.prenom,
+    priorite: 2,
+    tel: p.tel || '—',
+    email: p.email || '—',
+    zone: p.zone || '—',
+    metier: p.metier || '—',
+    secteur: p.secteur || '—',
+    statut: 'Actif — En recherche',
+    notes: p.notes || '',
+    messages: p.messages || {},
+    prospects: [],
+    requetes: p.requetes || [],
+    missionTransition: false,
+    disponibleCDI: true,
+    onePagerAnon: p.onePagerAnon || '',
+    tagsAnon: p.tagsAnon || '',
+    mobilite: p.mobilite || '—'
+  };
+
+  state.data.push(newCandidat);
+  saveData();
+  renderSidebar();
+  selectCandidate(newCandidat.id);
+  document.getElementById('cv-modal').remove();
+  notify('✅ Candidat ajouté : ' + p.prenom + ' ' + p.nom);
+}
+
+// ---- EXPORT WAALAXY CSV ----
+function exportWaalaxyCSV(candidatId) {
+  var c = getCandidate(candidatId);
+  if(!c) return;
+  var prospects = c.prospects.filter(p => p.linkedinUrl && p.linkedinUrl.trim());
+  if(!prospects.length) {
+    notify('⚠️ Aucun prospect avec URL LinkedIn. Ajoutez les URLs LinkedIn dans les fiches prospects.');
+    return;
+  }
+  // Format Waalaxy CSV : firstName, lastName, companyName, linkedinUrl
+  var header = 'firstName,lastName,companyName,linkedinUrl';
+  var rows = prospects.map(p => {
+    var fn = (p.prenom||'').replace(/"/g,'""');
+    var ln = (p.nom||'').replace(/"/g,'""');
+    var co = (p.entreprise||'').replace(/"/g,'""');
+    var url = (p.linkedinUrl||'').replace(/"/g,'""');
+    return `"${fn}","${ln}","${co}","${url}"`;
+  });
+  var csv = header + '\n' + rows.join('\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'waalaxy_' + c.prenom + '_' + c.nom + '_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  notify('✅ CSV Waalaxy exporté — ' + prospects.length + ' prospects avec URL LinkedIn');
+}
+
+// ---- RAPPEL GOOGLE CALENDAR ----
+function createCalendarLink(candidatId, prospectId) {
+  var c = getCandidate(candidatId);
+  if(!c) return;
+  var p = c.prospects.find(x => x.id === prospectId);
+  if(!p) return;
+
+  var title = encodeURIComponent('Relance — ' + p.prenom + ' ' + p.nom + ' (' + (p.entreprise||'') + ')');
+  var details = encodeURIComponent(
+    'Candidat : ' + c.prenom + ' ' + c.nom + '\n' +
+    'Statut actuel : ' + (p.statut||'—') + '\n' +
+    (p.note ? 'Note : ' + p.note + '\n' : '') +
+    (p.linkedinUrl ? 'LinkedIn : ' + p.linkedinUrl : '')
+  );
+
+  // Date J+7 par défaut
+  var d = new Date();
+  d.setDate(d.getDate() + 7);
+  var pad = n => n.toString().padStart(2,'0');
+  var dateStr = d.getFullYear().toString() + pad(d.getMonth()+1) + pad(d.getDate());
+  var startStr = dateStr + 'T090000';
+  var endStr = dateStr + 'T091500';
+
+  var url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
+  window.open(url, '_blank');
+  notify('📅 Ouverture Google Calendar pour ' + p.prenom + ' ' + p.nom);
+}
+
+// ---- RECHERCHES LINKEDIN (modal) ----
+function showLinkedInSearches(candidatId) {
+  var c = getCandidate(candidatId);
+  if(!c) return;
+  var reqs = c.requetes || [];
+  if(!reqs.length) { notify('⚠️ Aucune requête définie pour ce candidat'); return; }
+
+  var modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'li-modal';
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h2>🔍 Recherches LinkedIn — ${c.prenom} ${c.nom}</h2>
+      <p>Cliquez sur "Ouvrir LinkedIn" pour lancer la recherche directement. 1 clic = LinkedIn s'ouvre avec les bons filtres.</p>
+      ${reqs.map(r => {
+        var liUrl = 'https://www.linkedin.com/search/results/people/?keywords=' + encodeURIComponent(r.query);
+        return `<div class="msg-card" style="margin-bottom:10px">
+          <div class="msg-card-header">
+            <span class="msg-card-title">🎯 ${r.label}</span>
+            <div style="display:flex;gap:6px">
+              <a href="${liUrl}" target="_blank" class="li-search-btn">🔗 Ouvrir LinkedIn</a>
+              <button class="btn btn-gray btn-sm" onclick="navigator.clipboard.writeText('${r.query.replace(/'/g,"\\'")}').then(()=>notify('✓ Copié'))">📋 Copier</button>
+            </div>
+          </div>
+          <div class="msg-text" style="font-family:monospace;font-size:11px;background:#f0f9ff;border-color:#bae6fd;color:#0c4a6e">${r.query}</div>
+        </div>`;
+      }).join('')}
+      <button class="btn btn-gray" onclick="document.getElementById('li-modal').remove()" style="margin-top:8px">Fermer</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e => { if(e.target===modal) modal.remove(); });
 }
 
 </script>
