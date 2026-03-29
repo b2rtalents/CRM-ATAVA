@@ -274,6 +274,7 @@ select.statut-select{padding:4px 8px;border:1px solid #e2e8f0;border-radius:6px;
       <p id="sidebar-count">Candidats &amp; Prospects</p>
       <button onclick="openVeille()" style="margin-top:8px;width:100%;background:#f97316;border:none;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">🔍 Veille Emploi</button>
       <button onclick="openImportCV()" class="import-btn">📥 Importer un CV</button>
+      <button onclick="batchCalendarReminders()" style="margin-top:6px;width:100%;background:#7c3aed;border:none;color:#fff;padding:7px 12px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;justify-content:center">🔔 Rappels J+7 en lot</button>
     </div>
     <div class="search-box">
       <input type="text" id="search-input" placeholder="Rechercher un candidat..." oninput="filterCandidates()">
@@ -6616,6 +6617,11 @@ function saveCVProfile() {
   selectCandidate(newCandidat.id);
   document.getElementById('cv-modal').remove();
   notify('✅ Candidat ajouté : ' + p.prenom + ' ' + p.nom);
+
+  // ⚡ AUTOMATISATION 1 : export Waalaxy immédiat si des prospects avec URL LinkedIn existent
+  setTimeout(function() {
+    exportWaalaxyCSV(newCandidat.id);
+  }, 800);
 }
 
 // ---- EXPORT WAALAXY CSV ----
@@ -6645,6 +6651,64 @@ function exportWaalaxyCSV(candidatId) {
   a.click();
   URL.revokeObjectURL(url);
   notify('✅ CSV Waalaxy exporté — ' + prospects.length + ' prospects avec URL LinkedIn');
+}
+
+// ---- RAPPELS EN LOT ----
+function batchCalendarReminders() {
+  var STATUTS_A_RELANCER = ['Message envoyé', 'Contacté', 'Connexion envoyée', 'Invitation envoyée'];
+  var toRemind = [];
+
+  state.data.forEach(function(c) {
+    (c.prospects || []).forEach(function(p) {
+      if(STATUTS_A_RELANCER.indexOf(p.statut) >= 0 && p.dateContact) {
+        var parts = p.dateContact.split('/');
+        if(parts.length === 3) {
+          var contactDate = new Date(parseInt(parts[2]), parseInt(parts[1])-1, parseInt(parts[0]));
+          var relanceDate = new Date(contactDate.getTime() + 7*24*60*60*1000);
+          var today = new Date(); today.setHours(0,0,0,0);
+          var diffDays = Math.round((relanceDate - today) / (24*60*60*1000));
+          if(diffDays <= 14) {
+            toRemind.push({candidat: c, prospect: p, relanceDate: relanceDate, diffDays: diffDays});
+          }
+        }
+      }
+    });
+  });
+
+  if(!toRemind.length) { notify('✅ Aucun rappel à poser — tout est à jour !'); return; }
+
+  var modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'batch-modal';
+  modal.innerHTML = '<div class="modal-box">'
+    + '<h2>🔔 Rappels J+7 à poser</h2>'
+    + '<p>' + toRemind.length + ' prospect(s) à relancer — s\'ouvriront dans Google Calendar un par un.</p>'
+    + '<div style="max-height:280px;overflow-y:auto;margin-bottom:14px">'
+    + toRemind.map(function(r) {
+        var label = r.diffDays < 0 ? '🔴 Retard '+Math.abs(r.diffDays)+'j' : r.diffDays === 0 ? '🟡 Aujourd\'hui' : '🟢 J+'+r.diffDays;
+        return '<div style="padding:8px 10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:12px;display:flex;justify-content:space-between;align-items:center">'
+          + '<div><b>'+r.prospect.prenom+' '+r.prospect.nom+'</b> — '+(r.prospect.entreprise||'')+'<br><span style="color:#64748b;font-size:11px">'+r.candidat.prenom+' '+r.candidat.nom+' · '+r.prospect.statut+'</span></div>'
+          + '<span style="font-size:11px;font-weight:700">'+label+'</span></div>';
+      }).join('')
+    + '</div>'
+    + '<div style="display:flex;gap:8px">'
+    + '<button class="btn btn-violet" onclick="launchBatchReminders()">📅 Créer tous les rappels</button>'
+    + '<button class="btn btn-gray" onclick="document.getElementById(\'batch-modal\').remove()">Annuler</button>'
+    + '</div></div>';
+
+  modal.setAttribute('data-reminders', JSON.stringify(toRemind.map(function(r){ return {cid: r.candidat.id, pid: r.prospect.id}; })));
+  document.body.appendChild(modal);
+}
+
+function launchBatchReminders() {
+  var modal = document.getElementById('batch-modal');
+  var reminders = JSON.parse(modal.getAttribute('data-reminders') || '[]');
+  modal.remove();
+  if(!reminders.length) return;
+  notify('📅 Ouverture de ' + reminders.length + ' rappels Google Calendar...');
+  reminders.forEach(function(r, i) {
+    setTimeout(function() { createCalendarLink(r.cid, r.pid); }, i * 1500);
+  });
 }
 
 // ---- RAPPEL GOOGLE CALENDAR ----
