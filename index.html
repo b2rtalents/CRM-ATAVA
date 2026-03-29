@@ -6318,7 +6318,7 @@ function vpExportCSV() {
 
 // ---- IMPORT CV avec Claude API ----
 function openImportCV() {
-  var savedKey = localStorage.getItem('atava_api_key') || '';
+  var savedKey = localStorage.getItem('atava_groq_key') || '';
   var modal = document.createElement('div');
   modal.className = 'modal-overlay';
   modal.id = 'cv-modal';
@@ -6328,13 +6328,13 @@ function openImportCV() {
       <p>Déposez un fichier PDF ou Word, ou collez directement le texte du candidat.</p>
 
       ${!savedKey ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:12px">
-        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:6px">🔑 Clé API Anthropic requise (une seule fois)</div>
-        <div style="font-size:11px;color:#78350f;margin-bottom:8px">Récupérez-la sur <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#d97706">console.anthropic.com</a> — elle sera sauvegardée localement sur votre appareil uniquement.</div>
-        <input type="password" id="api-key-input" placeholder="sk-ant-..." style="width:100%;padding:8px 10px;border:1px solid #fde68a;border-radius:6px;font-size:12px;font-family:monospace">
-        <button onclick="saveApiKey()" class="btn btn-blue btn-sm" style="margin-top:6px">💾 Sauvegarder la clé</button>
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">🔑 Clé API Groq requise — 100% gratuit</div>
+        <div style="font-size:11px;color:#78350f;margin-bottom:8px">1. Créez un compte sur <a href="https://console.groq.com" target="_blank" style="color:#d97706;font-weight:700">console.groq.com</a><br>2. Allez dans "API Keys" → "Create API Key"<br>3. Copiez-collez la clé ci-dessous</div>
+        <input type="password" id="api-key-input" placeholder="gsk_..." style="width:100%;padding:8px 10px;border:1px solid #fde68a;border-radius:6px;font-size:12px;font-family:monospace">
+        <button onclick="saveApiKey()" class="btn btn-blue btn-sm" style="margin-top:6px">💾 Sauvegarder</button>
       </div>` : `<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;color:#065f46;display:flex;justify-content:space-between;align-items:center">
-        <span>✅ Clé API configurée</span>
-        <button onclick="localStorage.removeItem('atava_api_key');document.getElementById('cv-modal').remove();openImportCV();" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer">Changer</button>
+        <span>✅ Clé Groq configurée (gratuit)</span>
+        <button onclick="localStorage.removeItem('atava_groq_key');document.getElementById('cv-modal').remove();openImportCV();" style="background:none;border:none;color:#94a3b8;font-size:10px;cursor:pointer">Changer</button>
       </div>`}
 
       <div id="cv-dropzone" style="border:2px dashed #cbd5e1;border-radius:10px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px;background:#f8fafc;transition:background .2s"
@@ -6349,9 +6349,7 @@ function openImportCV() {
       </div>
 
       <div style="text-align:center;font-size:11px;color:#94a3b8;margin:8px 0">— ou collez le texte directement —</div>
-
       <textarea class="cv-textarea" id="cv-text" placeholder="Collez ici le CV complet, le texte LinkedIn, ou l'email du candidat..." style="min-height:120px"></textarea>
-
       <div id="cv-file-status" style="font-size:12px;color:#10b981;margin-top:6px;display:none"></div>
 
       <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
@@ -6365,11 +6363,11 @@ function openImportCV() {
 
 function saveApiKey() {
   var key = document.getElementById('api-key-input').value.trim();
-  if(!key.startsWith('sk-ant-')) { notify('⚠️ Clé invalide — doit commencer par sk-ant-'); return; }
-  localStorage.setItem('atava_api_key', key);
+  if(!key.startsWith('gsk_')) { notify('⚠️ Clé invalide — doit commencer par gsk_'); return; }
+  localStorage.setItem('atava_groq_key', key);
   document.getElementById('cv-modal').remove();
   openImportCV();
-  notify('✅ Clé API sauvegardée');
+  notify('✅ Clé Groq sauvegardée');
 }
 
 function handleCVDrop(event) {
@@ -6458,8 +6456,8 @@ async function extractCVWithAI() {
   var text = document.getElementById('cv-text').value.trim();
   if(!text) { notify('⚠️ Collez un CV ou chargez un fichier'); return; }
 
-  var apiKey = localStorage.getItem('atava_api_key');
-  if(!apiKey) { notify('⚠️ Configurez votre clé API Anthropic d\'abord'); return; }
+  var apiKey = localStorage.getItem('atava_groq_key');
+  if(!apiKey) { notify('⚠️ Configurez votre clé Groq gratuite d\'abord'); return; }
 
   var resultEl = document.getElementById('cv-result');
   resultEl.innerHTML = '<div style="margin-top:14px;color:#3b82f6"><span class="spinner"></span> Analyse en cours...</div>';
@@ -6500,18 +6498,20 @@ ${text.substring(0, 3000)}`;
       setTimeout(function(){ reject(new Error('TIMEOUT')); }, 30000);
     });
 
-    var fetchPromise = fetch('https://api.anthropic.com/v1/messages', {
+    var fetchPromise = fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Authorization': 'Bearer ' + apiKey
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'llama-3.3-70b-versatile',
         max_tokens: 1000,
-        messages: [{role: 'user', content: prompt}]
+        temperature: 0.1,
+        messages: [
+          {role: 'system', content: 'Tu es un assistant recruteur expert. Tu retournes UNIQUEMENT du JSON valide, sans markdown, sans backticks, sans commentaires.'},
+          {role: 'user', content: prompt}
+        ]
       })
     });
 
@@ -6523,7 +6523,7 @@ ${text.substring(0, 3000)}`;
     }
 
     var data = await resp.json();
-    var raw = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    var raw = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content : '';
     if(!raw) throw new Error('Réponse vide de l\'API');
 
     var jsonStr = raw.replace(/```json|```/g, '').trim();
